@@ -20,7 +20,6 @@ class BookOutput(BaseModel):
     year: int
     model_config = ConfigDict(from_attributes=True)
 
-
 class AuthorCreate(BaseModel):
     name: str = Field(min_length=3, max_length=50)
 
@@ -33,3 +32,7 @@ class AuthorOutput(BaseModel):
     id: int
     name: str
     model_config=ConfigDict(from_attributes=True)
+
+
+class AuthorWithBooks(AuthorOutput):
+    books: list[BookOutput]

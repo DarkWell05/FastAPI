@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from schemas import AuthorCreate, AuthorUpdate, AuthorOutput
+from schemas import AuthorCreate, AuthorUpdate, AuthorOutput, AuthorWithBooks
 from sqlalchemy.orm import selectinload
 from database import get_session
 from sqlalchemy import select
@@ -17,8 +17,15 @@ async def get_authors(session: AsyncSession = Depends(get_session)):
     author = result.scalars().all()
     return author
 
+@router.get("/{author_id}", response_model=AuthorWithBooks)
+async def get_author_and_him_books(author_id: int, session: AsyncSession = Depends(get_session)):
+    result = await session.execute(select(Author).where(Author.id == author_id).options(selectinload(Author.books)))
+    author = result.scalar_one_or_none()
+    if author is None:
+        raise HTTPException(status_code=404, detail="Упс! Автор не найден")
+    return author
 
-@router.post("/authors")
+@router.post("")
 async def add_author(current_author: AuthorCreate, session: AsyncSession = Depends(get_session)):
     author = Author(name=current_author.name)
 
